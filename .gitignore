@@ -1,0 +1,68 @@
+# Raw & Processed Data
+Raw_Data/
+Processed_Data/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.whl
+
+# Virtual Environments & Conda
+env/
+venv/
+.env
+.venv/
+conda-env/
+*.conda
+
+# Jupyter Notebooks checkpoints
+.ipynb_checkpoints/
+*.ipynb
+
+# Model artifacts & Embeddings (large binaries)
+*.npy
+*.npz
+*.faiss
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.pkl
+*.h5
+*.hdf5
+embeddings/
+faiss_index/
+models/
+checkpoints/
+
+# Logs & Temp files
+*.log
+*.tmp
+*.bak
+logs/
+tmp/
+temp/
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDEs
+.vscode/
+.idea/
+*.suo
+*.user
+
+# Secrets / Config
+.env
+*.env
+secrets.yaml
+config_local.yaml
