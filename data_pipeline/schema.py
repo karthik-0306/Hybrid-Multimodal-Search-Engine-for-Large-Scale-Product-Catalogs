@@ -43,3 +43,56 @@ class Product:
             A dictionary containing product attributes.
         """
         return asdict(self)
+
+
+def build_caption(product: dict, include_brand: bool = True) -> str:
+    """
+    Constructs a natural language caption from cleaned product attributes.
+
+    Captions are attribute-focused and query-styled to reduce the train/inference
+    distribution gap. Raw titles are intentionally not used because they contain
+    marketing noise, size codes, and language artifacts that conflict with the
+    compositionality objective of the model.
+
+    Args:
+        product: A dict with cleaned product fields (as returned by Product.to_dict()).
+        include_brand: When True, appends the brand as 'by <brand>'. Generating
+                       captions with and without brand creates two distinct phrasings
+                       per product, which prevents the model from overfitting to a
+                       single rigid sentence structure.
+
+    Returns:
+        A short natural language string suitable for image-text contrastive training.
+
+    Examples:
+        build_caption({"color": "brown", "material": "suede", "product_type": "shoes",
+                       "brand": "The Fix", "category": "Loafer"}, include_brand=True)
+        -> "a brown suede shoes in the loafer category by The Fix"
+
+        build_caption({"color": None, "material": None, "product_type": "grocery",
+                       "brand": None, "category": None}, include_brand=False)
+        -> "a grocery"
+    """
+    parts = []
+
+    if product.get("color"):
+        parts.append(product["color"].lower())
+
+    if product.get("material"):
+        parts.append(product["material"].lower())
+
+    if product.get("product_type"):
+        parts.append(product["product_type"].lower())
+
+    category = product.get("category")
+    product_type = product.get("product_type", "")
+    if category and category.lower() != product_type.lower():
+        parts.append(f"in the {category.lower()} category")
+
+    body = " ".join(parts) if parts else "product"
+    brand = product.get("brand")
+
+    if include_brand and brand:
+        return f"a {body} by {brand}"
+
+    return f"a {body}"

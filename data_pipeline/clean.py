@@ -7,6 +7,7 @@ image metadata. Produces final parquet outputs.
 
 import json
 import logging
+import shutil
 import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
@@ -303,12 +304,30 @@ def main() -> None:
     df_products = pd.DataFrame([prod.to_dict() for prod in products])
     df_products.to_parquet(config.products_parquet, index=False)
 
-    logger.info("Converting full images metadata to parquet")
+    logger.info("Isolating and copying %d active product images to %s", len(products), config.processed_images_dir)
+    config.processed_images_dir.mkdir(parents=True, exist_ok=True)
+    copied_count = 0
+    missing_count = 0
+    for prod in products:
+        src = config.images_base_dir / prod.main_image_path
+        dst = config.processed_images_dir / prod.main_image_path
+        if src.exists():
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src, dst)
+            copied_count += 1
+        else:
+            missing_count += 1
+    logger.info("Image copy completed: %d copied, %d missing", copied_count, missing_count)
+
+    logger.info("Filtering and converting images metadata to parquet")
     df_images = pd.read_csv(config.images_meta_path)
-    df_images.to_parquet(config.images_meta_parquet, index=False)
+    kept_image_ids = {prod.main_image_id for prod in products}
+    df_images_filtered = df_images[df_images["image_id"].isin(kept_image_ids)]
+    df_images_filtered.to_parquet(config.images_meta_parquet, index=False)
+    logger.info("Saved %d active image metadata records to %s", len(df_images_filtered), config.images_meta_parquet)
 
     logger.info("Saving processing statistics report")
-    stats["total_images"] = len(df_images)
+    stats["total_images"] = len(df_images_filtered)
     with open(config.stats_json, "w") as f:
         json.dump(stats, f, indent=2)
 
