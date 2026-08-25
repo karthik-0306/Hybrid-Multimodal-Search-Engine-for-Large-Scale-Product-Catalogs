@@ -60,6 +60,8 @@ class Config:
         self.images_meta_parquet: Path = self.processed_dir / "images_meta.parquet"
         self.processed_images_dir: Path = self.processed_dir / "images"
         self.lora_adapter_dir: Path = self.processed_dir / "models" / "lora_adapter"
+        self.image_embeddings_npy: Path = self.processed_dir / "image_embeddings.npy"
+        self.qdrant_db_dir: Path = self.processed_dir / "qdrant_db"
         self.stats_json: Path = self.processed_dir / "stats" / "dataset_stats.json"
 
     def __repr__(self) -> str:
