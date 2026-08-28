@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hybrid Multimodal Search Engine</title>
+  <meta name="description" content="Search 56,000+ Amazon products using AI-powered hybrid semantic search — fine-tuned SigLIP 2 dense embeddings combined with SPLADE keyword matching." />
+
+  <!-- Design system -->
+  <link rel="stylesheet" href="/static/styles.css" />
+
+  <!-- Favicon emoji -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>" />
+</head>
+
+<body>
+  <div class="app-wrapper">
+
+    <!-- ----------------------------------------------------------------
+         Hero / Header
+         ---------------------------------------------------------------- -->
+    <header class="hero" role="banner">
+      <div class="hero-eyebrow">
+        <span class="dot"></span>
+        Multimodal Search Engine — SigLIP 2 + SPLADE + Qdrant
+      </div>
+
+      <h1 class="hero-title">
+        Search Products by<br />
+        <span class="gradient-text">Meaning, Not Keywords</span>
+      </h1>
+
+      <p class="hero-sub">
+        Fine-tuned SigLIP 2 dense embeddings fused with SPLADE sparse retrieval
+        via Reciprocal Rank Fusion over 56,427 Amazon product listings.
+      </p>
+
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-value">56,427</span>
+          <span class="stat-label">Products</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">768</span>
+          <span class="stat-label">Dimensions</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">RRF</span>
+          <span class="stat-label">Fusion</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">SigLIP 2</span>
+          <span class="stat-label">Model</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ----------------------------------------------------------------
+         Search Bar
+         ---------------------------------------------------------------- -->
+    <section class="search-section" aria-label="Search">
+      <div class="search-container" role="search">
+        <!-- Search icon -->
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+
+        <input
+          id="search-input"
+          type="search"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          placeholder="Try: black leather boots, wooden dining table, Adidas running shoes…"
+          aria-label="Search products"
+        />
+
+        <button id="search-btn" class="search-btn" type="button" aria-label="Run search">
+          <!-- Search icon inside button -->
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <span class="btn-text">Search</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ----------------------------------------------------------------
+         Status Bar
+         ---------------------------------------------------------------- -->
+    <div id="status-bar" class="status-bar" aria-live="polite" aria-atomic="true">
+      <span id="status-text" class="status-text"></span>
+      <span id="latency-badge" class="latency-badge"></span>
+    </div>
+
+    <!-- ----------------------------------------------------------------
+         Results Grid
+         ---------------------------------------------------------------- -->
+    <main id="results-grid" role="main" aria-label="Search results">
+      <!-- Populated by app.js -->
+    </main>
+
+    <!-- ----------------------------------------------------------------
+         Footer
+         ---------------------------------------------------------------- -->
+    <footer class="app-footer">
+      <p>
+        Built with fine-tuned
+        <a href="https://huggingface.co/google/siglip2-base-patch16-224" target="_blank" rel="noopener">SigLIP 2</a>
+        ·
+        <a href="https://huggingface.co/prithivida/Splade_PP_en_v1" target="_blank" rel="noopener">SPLADE</a>
+        ·
+        <a href="https://qdrant.tech" target="_blank" rel="noopener">Qdrant</a>
+        on the
+        <a href="https://amazon-berkeley-objects.s3.amazonaws.com/index.html" target="_blank" rel="noopener">Amazon Berkeley Objects</a>
+        dataset
+      </p>
+    </footer>
+
+  </div><!-- /.app-wrapper -->
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

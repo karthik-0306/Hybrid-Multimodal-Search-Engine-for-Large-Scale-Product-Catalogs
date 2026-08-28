@@ -9,3 +9,9 @@ peft
 accelerate
 torch
 torchvision
+
+# Phase 4: Web Application
+fastapi
+uvicorn[standard]
+python-multipart
+Pillow
