@@ -2,9 +2,10 @@
 search/engine.py
 
 Provides the HybridSearchEngine class that orchestrates text query embedding
-and hybrid vector search against the local Qdrant database.
+and hybrid vector search against the Qdrant database (Local or Cloud).
 """
 
+import os
 import logging
 import time
 from pathlib import Path
@@ -26,20 +27,13 @@ COLLECTION_NAME = "abo_products"
 class HybridSearchEngine:
     """
     Orchestrates text-query embedding and hybrid (dense + sparse) search
-    against a local Qdrant collection using Reciprocal Rank Fusion (RRF).
-
-    The dense vector is produced by the fine-tuned SigLIP 2 text tower.
-    The sparse vector is produced by SPLADE for keyword-level matching.
-    Both signals are combined via Qdrant's built-in RRF fusion.
+    against a Qdrant collection using Reciprocal Rank Fusion (RRF).
     """
 
     def __init__(self, config: Any) -> None:
         """
         Initializes the search engine by loading the inference models and
-        connecting to the local Qdrant database.
-
-        Args:
-            config: Project Config instance with paths and settings.
+        connecting to the Qdrant database.
         """
         from indexing.inference import InferenceEngine
 
@@ -51,14 +45,20 @@ class HybridSearchEngine:
             lora_adapter_path=str(config.lora_adapter_dir),
         )
 
-        logger.info("Connecting to local Qdrant at %s", config.qdrant_db_dir)
-        self._client = QdrantClient(path=str(config.qdrant_db_dir))
+        qdrant_url = os.getenv("QDRANT_URL")
+        qdrant_api_key = os.getenv("QDRANT_API_KEY")
+
+        if qdrant_url and qdrant_api_key:
+            logger.info("Connecting to Qdrant Cloud at %s", qdrant_url)
+            self._client = QdrantClient(url=qdrant_url, api_key=qdrant_api_key)
+        else:
+            logger.info("Connecting to local Qdrant at %s", config.qdrant_db_dir)
+            self._client = QdrantClient(path=str(config.qdrant_db_dir))
 
         # Validate collection exists
         if not self._client.collection_exists(COLLECTION_NAME):
             raise RuntimeError(
-                f"Qdrant collection '{COLLECTION_NAME}' not found. "
-                "Please run indexing/build_index.py first."
+                f"Qdrant collection '{COLLECTION_NAME}' not found."
             )
 
         info = self._client.get_collection(COLLECTION_NAME)
@@ -71,20 +71,6 @@ class HybridSearchEngine:
     def search(self, query: str, top_k: int = 10) -> dict:
         """
         Runs a hybrid text search against the Qdrant collection.
-
-        Generates a dense embedding (SigLIP 2 text tower) and a sparse
-        embedding (SPLADE) from the query, then uses Qdrant's Reciprocal
-        Rank Fusion to combine both signals into a single ranked result list.
-
-        Args:
-            query: The natural language search query string.
-            top_k: Number of results to return (default 10).
-
-        Returns:
-            A dict with keys:
-                - "results": list of product dicts (score + all payload fields)
-                - "elapsed_ms": float, query latency in milliseconds
-                - "count": int, number of results returned
         """
         if not query or not query.strip():
             return {"results": [], "elapsed_ms": 0.0, "count": 0}
@@ -92,11 +78,11 @@ class HybridSearchEngine:
         query = query.strip()
         t0 = time.perf_counter()
 
-        # 1. Generate dense text embedding (768-dim, L2-normalized)
+        # 1. Generate dense text embedding
         logger.debug("Embedding query (dense): '%s'", query)
         dense_vector: list[float] = self._inference.embed_text_dense([query])[0]
 
-        # 2. Generate sparse SPLADE embedding (keyword indices + weights)
+        # 2. Generate sparse SPLADE embedding
         logger.debug("Embedding query (sparse): '%s'", query)
         sparse_raw: dict = self._inference.embed_text_sparse([query])[0]
         sparse_vector = SparseVector(
@@ -108,20 +94,17 @@ class HybridSearchEngine:
         results = self._client.query_points(
             collection_name=COLLECTION_NAME,
             prefetch=[
-                # Dense leg: retrieve top-k candidates by image similarity
                 Prefetch(
                     query=dense_vector,
                     using="dense_image",
                     limit=top_k * 3,
                 ),
-                # Sparse leg: retrieve top-k candidates by keyword match
                 Prefetch(
                     query=sparse_vector,
                     using="sparse_text",
                     limit=top_k * 3,
                 ),
             ],
-            # RRF re-ranks the merged candidates from both legs
             query=FusionQuery(fusion=Fusion.RRF),
             limit=top_k,
             with_payload=True,
@@ -133,7 +116,14 @@ class HybridSearchEngine:
         formatted = []
         for point in results.points:
             payload = point.payload or {}
-            image_path = payload.get("main_image_path", "")
+            
+            # Use public S3 URL if on cloud, otherwise fallback to local path
+            if "image_url" in payload:
+                image_url = payload["image_url"]
+            else:
+                image_path = payload.get("main_image_path", "")
+                image_url = f"/images/{image_path}" if image_path else ""
+
             formatted.append(
                 {
                     "score": round(point.score, 4),
@@ -144,8 +134,7 @@ class HybridSearchEngine:
                     "material": payload.get("material") or "",
                     "product_type": payload.get("product_type") or "",
                     "category": payload.get("category") or "",
-                    # Build the URL path for our static image server endpoint
-                    "image_url": f"/images/{image_path}" if image_path else "",
+                    "image_url": image_url,
                 }
             )
 

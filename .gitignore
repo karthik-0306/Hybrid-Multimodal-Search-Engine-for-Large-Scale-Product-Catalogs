@@ -41,6 +41,8 @@ conda-env/
 embeddings/
 faiss_index/
 models/
+!models/onnx/
+!models/onnx/*.onnx
 checkpoints/
 
 # Logs & Temp files

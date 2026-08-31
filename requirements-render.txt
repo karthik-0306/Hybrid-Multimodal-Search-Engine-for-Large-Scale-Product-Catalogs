@@ -1,0 +1,20 @@
+# requirements-render.txt
+# Lightweight requirements for Render.com deployment (512MB RAM constraint)
+
+# Backend Framework
+fastapi
+uvicorn[standard]
+python-multipart
+
+# Search & Inference
+qdrant-client
+fastembed
+onnxruntime
+
+# HuggingFace Tokenizer (for ONNX inputs, without heavy torch dependency)
+transformers
+
+# Data & Cloud
+python-dotenv
+boto3
+Pillow

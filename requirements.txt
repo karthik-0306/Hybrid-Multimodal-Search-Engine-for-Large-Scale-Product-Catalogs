@@ -10,8 +10,12 @@ accelerate
 torch
 torchvision
 
-# Phase 4: Web Application
+# Phase 4: Web Application & Cloud Deployment
 fastapi
 uvicorn[standard]
 python-multipart
 Pillow
+boto3
+python-dotenv
+onnxruntime
+optimum[onnxruntime]

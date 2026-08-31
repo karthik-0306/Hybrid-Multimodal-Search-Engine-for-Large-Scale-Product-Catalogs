@@ -1,0 +1,55 @@
+\documentclass[12pt, a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{graphicx}
+\usepackage{titlesec}
+\usepackage{setspace}
+
+\title{\textbf{Hybrid Multimodal Search Engine for Large-Scale Product Catalogs using SigLIP 2}}
+\author{} % Add your name here
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+As e-commerce platforms continue to expand their product catalogs to millions of items, providing accurate, intent-driven, and multimodal search capabilities has become a critical challenge. Traditional keyword-based search engines often fail to capture the semantic nuance of user queries, while purely dense vector-based retrieval systems struggle with exact keyword matching, such as specific brand names or product codes. This paper introduces a Hybrid Multimodal Search Engine that leverages the synergistic capabilities of dense visual-semantic embeddings and sparse neural representations. By fine-tuning the SigLIP 2 model using Low-Rank Adaptation (LoRA) for dense representations and utilizing SPLADE for sparse keyword matching, we construct a robust retrieval system. These dual signals are integrated using Reciprocal Rank Fusion (RRF) within a Qdrant vector database to deliver highly relevant search results over the Amazon Berkeley Objects (ABO) dataset.
+\end{abstract}
+
+\setstretch{1.15}
+
+\section{Introduction}
+
+The rapid proliferation of online retail has transformed large-scale product catalogs into massive, unstructured repositories of multimodal data, primarily consisting of text (titles, descriptions, attributes) and images. The primary interface for users to navigate these catalogs is the search bar. However, bridging the gap between a user's natural language query and the vast inventory of multimodal products remains a complex information retrieval (IR) challenge. Users increasingly expect search engines to understand complex semantics, visual characteristics, and specific constraints, moving beyond simple keyword overlaps.
+
+\subsection{The Limitations of Traditional Search}
+Historically, e-commerce search engines have relied heavily on lexical matching algorithms like TF-IDF and BM25. While these methods are highly efficient and excel at exact keyword matching (e.g., finding a specific brand like ``Adidas" or a model number), they suffer from the vocabulary mismatch problem. If a user searches for ``comfortable running shoes" and the product title is ``athletic breathable sneakers," traditional systems may fail to retrieve the relevant item because there is no direct word overlap. They lack a fundamental understanding of semantic similarity and context.
+
+\subsection{The Rise of Dense Retrieval and Multimodal Models}
+To address the semantic limitations of lexical search, the industry has shifted towards dense retrieval methods. These systems utilize deep neural networks, such as BERT, to map text into high-dimensional continuous vector spaces where semantic similarity can be measured via metrics like cosine similarity. 
+
+Furthermore, the introduction of Vision-Language Pre-training (VLP) models like CLIP (Contrastive Language-Image Pre-training) revolutionized multimodal retrieval by embedding images and text into a shared latent space. SigLIP (Sigmoid Loss for Language Image Pre-Training) builds upon CLIP by replacing the softmax loss with a pairwise sigmoid loss, allowing for better scaling and performance, particularly in fine-grained multimodal alignment. Despite their semantic prowess, dense retrieval models often fail at precise lexical matching; they might retrieve a ``blue Nike shoe" when the user explicitly queried for a ``blue Adidas shoe" due to the overall semantic similarity overwhelming the specific brand constraint.
+
+\subsection{Sparse Neural Retrieval}
+Recognizing the persistent need for exact matching, researchers developed Sparse Neural Retrieval models like SPLADE (Sparse Lexical and Expansion Model). Unlike traditional BM25, SPLADE uses transformer-based architectures to learn sparse representations that not only capture exact keywords but also perform learned term expansion. It identifies the most critical terms in a query or document and expands them with contextually relevant vocabulary, offering a middle ground that maintains the efficiency of inverted indices while injecting semantic understanding into sparse vectors.
+
+\subsection{The Hybrid Approach}
+Given that dense models excel at semantic intent and sparse models excel at exact lexical matching, state-of-the-art retrieval systems employ a hybrid approach. By processing a query through both a dense multimodal encoder (e.g., SigLIP 2) and a sparse neural encoder (e.g., SPLADE), the system generates two distinct lists of candidate products. These lists are then combined using algorithms like Reciprocal Rank Fusion (RRF). RRF does not require tuning of combination weights; instead, it ranks documents based on their inverse positions across multiple result sets, elegantly boosting items that perform well in both semantic and lexical domains.
+
+\section{Project Scope and Objectives}
+This project aims to design, implement, and evaluate a production-ready Hybrid Multimodal Search Engine capable of handling large-scale e-commerce catalogs. The specific objectives include:
+\begin{itemize}
+    \item \textbf{Data Processing:} Cleaning and standardizing the Amazon Berkeley Objects (ABO) dataset to create a high-quality multimodal catalog.
+    \item \textbf{Domain Adaptation:} Fine-tuning the SigLIP 2 model using Parameter-Efficient Fine-Tuning (PEFT) techniques, specifically LoRA, to adapt the foundation model to the specific vocabulary and visual nuances of the e-commerce domain without catastrophic forgetting or excessive computational costs.
+    \item \textbf{Hybrid Indexing:} Generating dense visual embeddings (SigLIP 2) and sparse text embeddings (SPLADE), and indexing them efficiently using the Qdrant vector database.
+    \item \textbf{Retrieval and Fusion:} Implementing a search pipeline that executes concurrent dense and sparse queries, merging the results via Reciprocal Rank Fusion to maximize both precision and recall.
+\end{itemize}
+
+By addressing the inherent weaknesses of both purely lexical and purely dense systems, this hybrid architecture seeks to provide a comprehensive solution to modern e-commerce search challenges.
+
+\end{document}

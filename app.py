@@ -69,11 +69,13 @@ app = FastAPI(
 _project_root = Path(__file__).resolve().parent
 _images_dir = _project_root / "Processed_Data" / "images"
 
-if _images_dir.exists():
+# Only mount local images when not on Render (cloud uses S3 URLs from Qdrant payloads)
+import os as _os
+if not _os.getenv("RENDER") and _images_dir.exists():
     app.mount("/images", StaticFiles(directory=str(_images_dir)), name="images")
     logger.info("Mounted product images from %s", _images_dir)
 else:
-    logger.warning("Images directory not found at %s — images will not display.", _images_dir)
+    logger.info("Skipping local image mount — using S3 URLs from Qdrant Cloud.")
 
 # Serve frontend static files (CSS, JS)
 _static_dir = _project_root / "static"
