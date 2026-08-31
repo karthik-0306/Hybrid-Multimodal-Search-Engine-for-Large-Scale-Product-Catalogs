@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: abo-hybrid-search
+    name: ContextClosest
     env: python
     region: ohio
     plan: free
