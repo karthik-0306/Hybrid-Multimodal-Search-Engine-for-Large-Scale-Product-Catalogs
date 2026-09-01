@@ -1,6 +1,6 @@
-# requirements-hf.txt
-# Serving dependencies for the Hugging Face Spaces deployment.
-# torch is installed separately (CPU wheel) in the Dockerfile.
+# requirements-modal.txt
+# Runtime deps for the Modal deployment (see modal_app.py).
+# torch is installed separately (CPU wheel) inside the Modal image build.
 
 # Backend
 fastapi

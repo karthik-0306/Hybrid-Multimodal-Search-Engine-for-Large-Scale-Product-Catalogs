@@ -1,15 +1,3 @@
----
-title: Hybrid Multimodal Search Engine
-emoji: 🔍
-colorFrom: indigo
-colorTo: purple
-sdk: docker
-app_port: 7860
-pinned: false
-license: mit
-short_description: Hybrid SigLIP 2 + SPLADE search over 56K Amazon product listings, fused with RRF.
----
-
 # Hybrid Multimodal Search Engine for Large-Scale Product Catalogs
 
 A production-ready hybrid search engine that combines dense visual embeddings from a fine-tuned **SigLIP 2** model with sparse keyword retrieval using **SPLADE**, fused via **Reciprocal Rank Fusion (RRF)** and served through a **FastAPI** backend with a premium dark-mode web interface.
@@ -117,6 +105,24 @@ python indexing/build_index.py
 python app.py
 ```
 Then open **`http://localhost:8000`** in your browser.
+
+---
+
+## ☁️ Deployment
+
+The live demo runs **serverless on [Modal](https://modal.com)** (scales to zero when idle).
+The search engine talks to **Qdrant Cloud** for vectors and loads product images from
+**public S3 URLs** stored in each Qdrant payload — see `scripts/cloud_reindex.py` and
+`scripts/upload_to_s3.py`.
+
+```bash
+pip install modal
+modal token new
+modal secret create qdrant QDRANT_URL="..." QDRANT_API_KEY="..."
+modal deploy modal_app.py
+```
+
+Full walkthrough: [`docs/DEPLOY_MODAL.md`](docs/DEPLOY_MODAL.md).
 
 ---
 
