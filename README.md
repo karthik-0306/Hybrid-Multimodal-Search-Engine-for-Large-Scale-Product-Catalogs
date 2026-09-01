@@ -1,3 +1,13 @@
+---
+title: Hybrid Multimodal Search Engine
+emoji: 🔍
+colorFrom: indigo
+colorTo: purple
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # Hybrid Multimodal Search Engine for Large-Scale Product Catalogs
 
 A production-ready hybrid search engine that combines dense visual embeddings from a fine-tuned **SigLIP 2** model with sparse keyword retrieval using **SPLADE**, fused via **Reciprocal Rank Fusion (RRF)** and served through a **FastAPI** backend with a premium dark-mode web interface.

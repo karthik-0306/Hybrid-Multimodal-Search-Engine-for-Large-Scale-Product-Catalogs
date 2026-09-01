@@ -1,8 +1,49 @@
-# Raw & Processed Data
+# ---------------------------------------------------------------------------
+# Data — never commit. Pulled from S3 / Qdrant Cloud at runtime.
+# ---------------------------------------------------------------------------
 Raw_Data/
 Processed_Data/
+embeddings/
+faiss_index/
+checkpoints/
 
+# ---------------------------------------------------------------------------
+# Secrets
+# ---------------------------------------------------------------------------
+.env
+.env.*
+*.env
+secrets.yaml
+config_local.yaml
+!.env.example
+
+# ---------------------------------------------------------------------------
+# Model artifacts and large binaries
+#   Exception: the small LoRA adapter under deploy/ is committed on purpose
+#   so the Hugging Face Space can load it without Processed_Data/.
+# ---------------------------------------------------------------------------
+models/
+*.npy
+*.npz
+*.faiss
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.pkl
+*.h5
+*.hdf5
+*.onnx
+*.onnx.data
+*.safetensors
+*.zip
+!deploy/
+!deploy/**
+!deploy/lora_adapter/*.safetensors
+
+# ---------------------------------------------------------------------------
 # Python
+# ---------------------------------------------------------------------------
 __pycache__/
 *.py[cod]
 *.pyo
@@ -14,38 +55,20 @@ build/
 .eggs/
 *.whl
 
-# Virtual Environments & Conda
+# ---------------------------------------------------------------------------
+# Virtual environments
+# ---------------------------------------------------------------------------
 env/
 venv/
-.env
 .venv/
 conda-env/
 *.conda
 
-# Jupyter Notebooks checkpoints
+# ---------------------------------------------------------------------------
+# Notebooks / logs / temp
+# ---------------------------------------------------------------------------
 .ipynb_checkpoints/
 *.ipynb
-
-# Model artifacts and large binaries
-*.npy
-*.npz
-*.faiss
-*.bin
-*.pt
-*.pth
-*.ckpt
-*.pkl
-*.h5
-*.hdf5
-*.zip
-embeddings/
-faiss_index/
-models/
-!models/onnx/
-!models/onnx/*.onnx
-checkpoints/
-
-# Logs & Temp files
 *.log
 *.tmp
 *.bak
@@ -53,19 +76,13 @@ logs/
 tmp/
 temp/
 
-# OS artifacts
+# ---------------------------------------------------------------------------
+# OS / IDE
+# ---------------------------------------------------------------------------
 .DS_Store
 Thumbs.db
 desktop.ini
-
-# IDEs
 .vscode/
 .idea/
 *.suo
 *.user
-
-# Secrets / Config
-.env
-*.env
-secrets.yaml
-config_local.yaml

@@ -1,0 +1,19 @@
+# requirements-hf.txt
+# Serving dependencies for the Hugging Face Spaces deployment.
+# torch is installed separately (CPU wheel) in the Dockerfile.
+
+# Backend
+fastapi
+uvicorn[standard]
+python-multipart
+python-dotenv
+
+# Dense model (fine-tuned SigLIP 2 + LoRA)
+transformers>=4.49
+peft>=0.19
+sentencepiece
+Pillow
+
+# Sparse model (SPLADE) + vector DB
+fastembed
+qdrant-client

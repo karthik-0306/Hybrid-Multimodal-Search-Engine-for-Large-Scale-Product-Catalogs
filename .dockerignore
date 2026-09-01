@@ -1,0 +1,13 @@
+# Keep the Spaces build context small
+.git
+Raw_Data/
+Processed_Data/
+models/
+docs/
+*.log
+__pycache__/
+*.pyc
+.env
+.venv/
+env/
+venv/

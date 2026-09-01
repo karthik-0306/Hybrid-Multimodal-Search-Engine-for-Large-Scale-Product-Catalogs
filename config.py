@@ -5,6 +5,7 @@ This module serves as the single source of truth for all paths, constants,
 and configuration parameters across the project.
 """
 
+import os
 from pathlib import Path
 from typing import Dict, Tuple
 
@@ -59,7 +60,16 @@ class Config:
         self.products_parquet: Path = self.processed_dir / "products.parquet"
         self.images_meta_parquet: Path = self.processed_dir / "images_meta.parquet"
         self.processed_images_dir: Path = self.processed_dir / "images"
-        self.lora_adapter_dir: Path = self.processed_dir / "models" / "lora_adapter"
+        # LoRA adapter: explicit override wins, then the local training output,
+        # then the lightweight copy committed for cloud deploys (HF Spaces).
+        _env_adapter = os.getenv("LORA_ADAPTER_DIR")
+        _processed_adapter = self.processed_dir / "models" / "lora_adapter"
+        if _env_adapter:
+            self.lora_adapter_dir: Path = Path(_env_adapter)
+        elif _processed_adapter.exists():
+            self.lora_adapter_dir = _processed_adapter
+        else:
+            self.lora_adapter_dir = project_root / "deploy" / "lora_adapter"
         self.image_embeddings_npy: Path = self.processed_dir / "image_embeddings.npy"
         self.qdrant_db_dir: Path = self.processed_dir / "qdrant_db"
         self.stats_json: Path = self.processed_dir / "stats" / "dataset_stats.json"
