@@ -6,6 +6,8 @@ colorTo: purple
 sdk: docker
 app_port: 7860
 pinned: false
+license: mit
+short_description: Hybrid SigLIP 2 + SPLADE search over 56K Amazon product listings, fused with RRF.
 ---
 
 # Hybrid Multimodal Search Engine for Large-Scale Product Catalogs
