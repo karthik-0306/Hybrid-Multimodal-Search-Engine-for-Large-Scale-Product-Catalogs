@@ -31,7 +31,7 @@ COLLECTION_NAME = "abo_products"
 
 def migrate_to_cloud():
     print(f"Connecting to Qdrant Cloud at {QDRANT_URL}...")
-    client = QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
+    client = QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY, timeout=120)
 
     print("Loading dataset and pre-computed embeddings...")
     df = pd.read_parquet(parquet_path)
@@ -55,8 +55,21 @@ def migrate_to_cloud():
     s3_base_url = f"https://{AWS_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/images/"
 
     print("Starting upsert to Qdrant Cloud...")
-    batch_size = 250
+    batch_size = 128
     points = []
+
+    def _upsert_with_retry(pts):
+        import time
+        for attempt in range(5):
+            try:
+                client.upsert(collection_name=COLLECTION_NAME, points=pts)
+                return
+            except Exception as exc:  # transient network / timeout
+                if attempt == 4:
+                    raise
+                wait = 2 ** attempt
+                print(f"  upsert failed ({exc}); retry in {wait}s", flush=True)
+                time.sleep(wait)
 
     for i, row in df.iterrows():
         # Replace the local image path with the public S3 URL
@@ -81,13 +94,13 @@ def migrate_to_cloud():
         points.append(point)
 
         if len(points) >= batch_size:
-            client.upsert(collection_name=COLLECTION_NAME, points=points)
+            _upsert_with_retry(points)
             points = []
             print(f"Upserted {i + 1}/{len(df)} points...", flush=True)
 
     # Upsert remaining
     if points:
-        client.upsert(collection_name=COLLECTION_NAME, points=points)
+        _upsert_with_retry(points)
         
     print(f"Successfully migrated all {len(df)} products to Qdrant Cloud!")
 
